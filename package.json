@@ -14,7 +14,8 @@
 		"terminal-dashboard": "dist/cli.js"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"Readme.md"
 	],
 	"scripts": {
 		"prebuild": "bun run format && bun run lint:fix && bun run typecheck",
