@@ -1,16 +1,17 @@
 {
-	"name": "involvex-terminal-dashboard",
+	"name": "@involvex/terminal-dashboard",
 	"version": "0.0.0",
 	"description": "A Modern Cli Dashboard to watch latest trending git repos, and npm releases",
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "git+https://github.com/involvex/terminal-dashboard.git"
 	},
 	"license": "MIT",
 	"author": "involvex",
 	"type": "module",
 	"bin": {
-		"involvex-terminal-dashboard": "dist/cli.js"
+		"term-dash": "dist/cli.js",
+		"terminal-dashboard": "dist/cli.js"
 	},
 	"files": [
 		"dist"

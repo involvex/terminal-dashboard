@@ -49,6 +49,9 @@ export default function Dashboard() {
 		if (key.rightArrow || key.downArrow) {
 			setActivePanel(prev => (prev + 1) % panels.length)
 		}
+		if (key.escape || key.return || _input === 'q' || _input === 'Q') {
+			process.exit(0)
+		}
 	})
 
 	const ActivePanel1 = panels[0].component
