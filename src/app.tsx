@@ -26,7 +26,10 @@ type AppScreen =
 interface Plugin {
 	id: string
 	name: string
-	component: React.ComponentType<{isActive: boolean}>
+	component: React.ComponentType<{
+		isActive: boolean
+		dimensions?: {columns: number; rows: number}
+	}>
 	enabled: boolean
 }
 

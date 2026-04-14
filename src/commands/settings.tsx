@@ -2,6 +2,7 @@ import SelectInput, {type SelectItem} from '../components/select-input.js'
 import {useAppContext} from '../app.js'
 import {Text, Box, useInput} from 'ink'
 import {useState} from 'react'
+import type {Key} from 'ink'
 
 type Theme = 'cyan' | 'magenta' | 'green' | 'yellow' | 'blue'
 
@@ -24,7 +25,7 @@ export default function Settings() {
 		value: t.value,
 	}))
 
-	useInput((input: string, key: any) => {
+	useInput((input: string, key: Key) => {
 		if (key.upArrow) {
 			setSelectedIndex(prev => Math.max(0, prev - 1))
 		}

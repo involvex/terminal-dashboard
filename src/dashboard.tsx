@@ -97,6 +97,7 @@ export default function Dashboard() {
 							<PanelComponent
 								key={panel.id}
 								isActive={activePanel === index}
+								dimensions={dimensions}
 							/>
 						)
 					})}
@@ -112,6 +113,7 @@ export default function Dashboard() {
 							<PanelComponent
 								key={panel.id}
 								isActive={activePanel === globalIndex}
+								dimensions={dimensions}
 							/>
 						)
 					})}
