@@ -62,16 +62,16 @@ All agents implement this standard interface:
 
 ```typescript
 interface Agent<T = any> {
-	id: string
-	name: string
-	status: 'idle' | 'loading' | 'error' | 'ready'
+ id: string
+ name: string
+ status: 'idle' | 'loading' | 'error' | 'ready'
 
-	start(): Promise<void>
-	stop(): void
-	getData(): T
-	refresh(): Promise<T>
+ start(): Promise<void>
+ stop(): void
+ getData(): T
+ refresh(): Promise<T>
 
-	on(event: 'data' | 'error' | 'status', handler: Function): void
+ on(event: 'data' | 'error' | 'status', handler: Function): void
 }
 ```
 
@@ -93,15 +93,15 @@ interface Agent<T = any> {
 import {useAgent} from './hooks/useAgent'
 
 export function MyCustomPanel() {
-	const {data, status, error} = useAgent('my-agent-id')
+ const {data, status, error} = useAgent('my-agent-id')
 
-	return (
-		<Box flexDirection="column">
-			<Text bold>My Custom Panel</Text>
-			{status === 'loading' && <Spinner />}
-			{data && <Text>{JSON.stringify(data)}</Text>}
-		</Box>
-	)
+ return (
+  <Box flexDirection="column">
+   <Text bold>My Custom Panel</Text>
+   {status === 'loading' && <Spinner />}
+   {data && <Text>{JSON.stringify(data)}</Text>}
+  </Box>
+ )
 }
 ```
 
