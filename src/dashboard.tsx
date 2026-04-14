@@ -1,13 +1,19 @@
-import GithubTrendingPanel from './panels/github-trending-panel.js'
-import NpmReleasesPanel from './panels/npm-panel.js'
 import React, {useState, useEffect} from 'react'
-import RamPanel from './panels/ram-panel.js'
-import CpuPanel from './panels/cpu-panel.js'
 import {Box, Text, useInput} from 'ink'
+import {useAppContext} from './app.js'
 
 export default function Dashboard() {
+	const {plugins, setScreen} = useAppContext()
 	const [dimensions, setDimensions] = useState({columns: 120, rows: 30})
 	const [activePanel, setActivePanel] = useState(0)
+	const [currentTime, setCurrentTime] = useState(new Date())
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setCurrentTime(new Date())
+		}, 1000)
+		return () => clearInterval(timer)
+	}, [])
 
 	useEffect(() => {
 		if (process.stdout.isTTY) {
@@ -30,34 +36,89 @@ export default function Dashboard() {
 		}
 	}, [])
 
-	const {columns, rows} = dimensions
-
-	const panels = [
-		{name: 'CPU', component: CpuPanel},
-		{name: 'RAM', component: RamPanel},
-		{name: 'GitHub', component: GithubTrendingPanel},
-		{name: 'NPM', component: NpmReleasesPanel},
-	]
+	const enabledPanels = plugins.filter(p => p.enabled)
 
 	useInput((_input, key) => {
+		if (enabledPanels.length === 0) return
+
 		if (key.tab) {
-			setActivePanel(prev => (prev + 1) % panels.length)
+			setActivePanel(prev => (prev + 1) % enabledPanels.length)
 		}
 		if (key.leftArrow || key.upArrow) {
-			setActivePanel(prev => (prev - 1 + panels.length) % panels.length)
+			setActivePanel(
+				prev => (prev - 1 + enabledPanels.length) % enabledPanels.length,
+			)
 		}
 		if (key.rightArrow || key.downArrow) {
-			setActivePanel(prev => (prev + 1) % panels.length)
+			setActivePanel(prev => (prev + 1) % enabledPanels.length)
 		}
-		if (key.escape || key.return || _input === 'q' || _input === 'Q') {
+		if (_input === 'm' || _input === 'M') {
+			setScreen('menu')
+		}
+		if (key.escape || _input === 'q' || _input === 'Q') {
 			process.exit(0)
 		}
 	})
 
-	const ActivePanel1 = panels[0].component
-	const ActivePanel2 = panels[1].component
-	const ActivePanel3 = panels[2].component
-	const ActivePanel4 = panels[3].component
+	const {columns, rows} = dimensions
+
+	const renderGrid = () => {
+		if (enabledPanels.length === 0) {
+			return (
+				<Box
+					flexDirection="column"
+					alignItems="center"
+					justifyContent="center"
+					flexGrow={1}
+				>
+					<Text dimColor>
+						No panels enabled. Go to Settings to enable panels.
+					</Text>
+				</Box>
+			)
+		}
+
+		const half = Math.ceil(enabledPanels.length / 2)
+		const leftPanels = enabledPanels.slice(0, half)
+		const rightPanels = enabledPanels.slice(half)
+
+		return (
+			<Box
+				flexDirection="row"
+				flexGrow={1}
+			>
+				<Box
+					flexDirection="column"
+					width="50%"
+				>
+					{leftPanels.map((panel, index) => {
+						const PanelComponent = panel.component
+						return (
+							<PanelComponent
+								key={panel.id}
+								isActive={activePanel === index}
+							/>
+						)
+					})}
+				</Box>
+				<Box
+					flexDirection="column"
+					width="50%"
+				>
+					{rightPanels.map((panel, index) => {
+						const PanelComponent = panel.component
+						const globalIndex = index + half
+						return (
+							<PanelComponent
+								key={panel.id}
+								isActive={activePanel === globalIndex}
+							/>
+						)
+					})}
+				</Box>
+			</Box>
+		)
+	}
 
 	return (
 		<Box
@@ -72,42 +133,61 @@ export default function Dashboard() {
 				paddingX={2}
 				paddingY={1}
 				justifyContent="space-between"
+				borderStyle="single"
+				borderBottom={true}
+				borderTop={false}
+				borderLeft={false}
+				borderRight={false}
+				borderColor="cyan"
 			>
 				<Text
 					bold
 					color="cyan"
 				>
-					╔═══════ INVOLVEX TERMINAL DASHBOARD ═══════╗
+					INVOLVEX TERMINAL DASHBOARD
 				</Text>
-				<Text dimColor>
-					{new Date().toLocaleTimeString()} | {columns}x{rows}
+				<Text>
+					<Text
+						color="yellow"
+						bold
+					>
+						{currentTime.toLocaleDateString()}
+					</Text>
+					<Text dimColor> | </Text>
+					<Text
+						color="green"
+						bold
+					>
+						{currentTime.toLocaleTimeString()}
+					</Text>
+					<Text dimColor>
+						{' '}
+						| {columns}x{rows}
+					</Text>
 				</Text>
 			</Box>
 
 			{/* Main Grid Layout */}
-			<Box flexDirection="row">
-				{/* Left Column */}
-				<Box flexDirection="column">
-					<ActivePanel1 isActive={activePanel === 0} />
-					<ActivePanel2 isActive={activePanel === 1} />
-				</Box>
-
-				{/* Right Column */}
-				<Box flexDirection="column">
-					<ActivePanel3 isActive={activePanel === 2} />
-					<ActivePanel4 isActive={activePanel === 3} />
-				</Box>
-			</Box>
+			{renderGrid()}
 
 			{/* Footer Bar */}
 			<Box
 				paddingX={2}
 				paddingY={1}
 				justifyContent="space-between"
+				borderStyle="single"
+				borderTop={true}
+				borderBottom={false}
+				borderLeft={false}
+				borderRight={false}
+				borderColor="cyan"
 			>
-				<Text dimColor>← → ↑ ↓ Navigate Panels • Tab Cycle • Q Quit</Text>
+				<Text dimColor>
+					← → ↑ ↓ Navigate Panels • Tab Cycle • M Menu • Q Quit
+				</Text>
 				<Text>
-					Active: <Text color="cyan">{panels[activePanel].name}</Text>
+					Active:{' '}
+					<Text color="cyan">{enabledPanels[activePanel]?.name || 'None'}</Text>
 				</Text>
 			</Box>
 		</Box>

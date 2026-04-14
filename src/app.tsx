@@ -1,27 +1,49 @@
 import SelectInput, {type SelectItem} from './components/select-input.js'
+import {useState, createContext, useContext} from 'react'
 import pkg from '../package.json' with {type: 'json'}
 import {Text, Box, useInput} from 'ink'
-import {useState} from 'react'
 
+import GithubTrendingPanel from './panels/github-trending-panel.js'
+import NpmReleasesPanel from './panels/npm-panel.js'
 import Settings from './commands/settings.js'
-import Welcome from './commands/welcome.js'
+import RamPanel from './panels/ram-panel.js'
+import CpuPanel from './panels/cpu-panel.js'
 import Version from './commands/version.js'
 import About from './commands/about.js'
 import Dashboard from './dashboard.js'
 import Help from './commands/help.js'
 import Exit from './commands/exit.js'
-import Demo from './commands/demo.js'
 
 type AppScreen =
-	| 'welcome'
 	| 'menu'
 	| 'help'
 	| 'about'
 	| 'version'
 	| 'settings'
-	| 'demo'
 	| 'dashboard'
 	| 'exit'
+
+interface Plugin {
+	id: string
+	name: string
+	component: React.ComponentType<{isActive: boolean}>
+	enabled: boolean
+}
+
+interface AppContextType {
+	plugins: Plugin[]
+	togglePlugin: (id: string) => void
+	currentScreen: AppScreen
+	setScreen: (screen: AppScreen) => void
+}
+
+const AppContext = createContext<AppContextType | null>(null)
+
+export const useAppContext = () => {
+	const context = useContext(AppContext)
+	if (!context) throw new Error('useAppContext must be used within AppProvider')
+	return context
+}
 
 interface BackableScreenProps {
 	children: React.ReactNode
@@ -49,32 +71,63 @@ function BackableScreen({children, onBack}: BackableScreenProps) {
 }
 
 export default function App() {
-	const [screen, setScreen] = useState<AppScreen>('welcome')
+	const [screen, setScreen] = useState<AppScreen>('dashboard')
+	const [plugins, setPlugins] = useState<Plugin[]>([
+		{
+			id: 'cpu',
+			name: 'CPU Monitor',
+			component: CpuPanel,
+			enabled: true,
+		},
+		{
+			id: 'ram',
+			name: 'RAM Monitor',
+			component: RamPanel,
+			enabled: true,
+		},
+		{
+			id: 'github',
+			name: 'GitHub Trending',
+			component: GithubTrendingPanel,
+			enabled: true,
+		},
+		{
+			id: 'npm',
+			name: 'NPM Releases',
+			component: NpmReleasesPanel,
+			enabled: true,
+		},
+	])
 
-	const _goWelcome = () => setScreen('welcome')
+	const togglePlugin = (id: string) => {
+		setPlugins(prev =>
+			prev.map(p => (p.id === id ? {...p, enabled: !p.enabled} : p)),
+		)
+	}
+
 	const goMenu = () => setScreen('menu')
+	const _goDashboard = () => setScreen('dashboard')
 	const _goHelp = () => setScreen('help')
 	const _goAbout = () => setScreen('about')
 	const _goVersion = () => setScreen('version')
 	const _goSettings = () => setScreen('settings')
-	const _goDemo = () => setScreen('demo')
-	const _goDashboard = () => setScreen('dashboard')
 	const _goExit = () => setScreen('exit')
 
+	// Global hotkey handler
+	useInput((input, key) => {
+		if ((input === 'm' || input === 'M') && key.ctrl) {
+			setScreen(prev => (prev === 'dashboard' ? 'menu' : 'dashboard'))
+		}
+	})
+
 	const menuItems: SelectItem<AppScreen>[] = [
-		{label: '→ Welcome', value: 'welcome'},
 		{label: '🚀 Dashboard', value: 'dashboard'},
-		{label: '→ Demo', value: 'demo'},
 		{label: '→ Help', value: 'help'},
 		{label: '→ Settings', value: 'settings'},
 		{label: '→ About', value: 'about'},
 		{label: '→ Version', value: 'version'},
 		{label: '→ Exit', value: 'exit'},
 	]
-
-	if (screen === 'welcome') {
-		return <Welcome onComplete={goMenu} />
-	}
 
 	if (screen === 'menu') {
 		return (
@@ -173,24 +226,26 @@ export default function App() {
 		)
 	}
 
+	if (screen === 'dashboard') {
+		return (
+			<AppContext.Provider
+				value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+			>
+				<Dashboard />
+			</AppContext.Provider>
+		)
+	}
+
 	if (screen === 'settings') {
 		return (
 			<BackableScreen onBack={goMenu}>
-				<Settings />
+				<AppContext.Provider
+					value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+				>
+					<Settings />
+				</AppContext.Provider>
 			</BackableScreen>
 		)
-	}
-
-	if (screen === 'demo') {
-		return (
-			<BackableScreen onBack={goMenu}>
-				<Demo />
-			</BackableScreen>
-		)
-	}
-
-	if (screen === 'dashboard') {
-		return <Dashboard />
 	}
 
 	if (screen === 'exit') {
