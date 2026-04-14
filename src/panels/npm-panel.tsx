@@ -63,83 +63,73 @@ const CATEGORY_LABELS: Record<Category, string> = {
 	math: 'Math',
 }
 
-const CATEGORY_KEYWORDS: Record<Category, string[]> = {
-	all: [],
-	frontend: [
-		'react',
-		'vue',
-		'angular',
-		'svelte',
-		'ui',
-		'dom',
-		'component',
-		'hook',
-		'render',
-		'virtual',
-	],
-	backend: [
-		'server',
-		'api',
-		'express',
-		'nest',
-		'database',
-		'backend',
-		'http',
-		'rest',
-		'graphql',
-	],
-	cli: [
-		'cli',
-		'command',
-		'bin',
-		'terminal',
-		'ink',
-		'yargs',
-		'commander',
-		'argparse',
-	],
-	docs: ['docs', 'documentation', 'markdown', 'readme', 'doc', 'typedoc'],
-	css: ['css', 'style', 'tailwind', 'sass', 'scss', 'theme', 'styled'],
-	testing: [
-		'test',
-		'jest',
-		'vitest',
-		'mocha',
-		'cypress',
-		'mock',
-		'vitest',
-		' AVA',
-	],
-	iot: [
-		'iot',
-		'arduino',
-		'raspberry',
-		'sensor',
-		'embedded',
-		'firmware',
-		'device',
-	],
-	coverage: ['coverage', 'nyc', 'istanbul', 'c8', 'coveralls'],
-	mobile: [
-		'react-native',
-		'mobile',
-		'ios',
-		'android',
-		'capacitor',
-		'ionic',
-		'expo',
-	],
-	frameworks: ['framework', 'scaffold', 'boilerplate', 'starter', 'template'],
-	robotics: ['robotics', 'robot', 'ros', 'motor', 'servo', 'drone'],
-	math: ['math', 'algorithm', 'numeric', 'statistics', 'utils', 'calc'],
+const CATEGORY_QUERIES: Record<Category, string> = {
+	all: '',
+	frontend: 'react+vue+angular+svelte+ui+component+hook',
+	backend: 'server+api+express+database+backend+http+rest+graphql',
+	cli: 'cli+command+bin+terminal+ink+yargs+commander',
+	docs: 'docs+documentation+markdown+readme+typedoc',
+	css: 'css+style+tailwind+sass+scss+theme+styled',
+	testing: 'test+jest+vitest+mocha+cypress+mock',
+	iot: 'iot+arduino+raspberry+sensor+embedded+firmware',
+	coverage: 'coverage+nyc+istanbul+c8+coveralls',
+	mobile: 'react-native+mobile+expo+capacitor+ionic',
+	frameworks: 'framework+scaffold+boilerplate+starter+template',
+	robotics: 'robotics+robot+ros+motor+servo+drone',
+	math: 'math+algorithm+numeric+statistics+calc',
 }
+
+const FALLBACK_PACKAGES: NpmPackage[] = [
+	{
+		name: 'react',
+		version: '19.1.0',
+		description: 'React is a JavaScript library for building user interfaces.',
+		date: new Date().toISOString(),
+		author: 'facebook',
+	},
+	{
+		name: 'next',
+		version: '15.3.0',
+		description: 'The React Framework for the Web.',
+		date: new Date().toISOString(),
+		author: 'vercel',
+	},
+	{
+		name: 'typescript',
+		version: '5.8.0',
+		description: 'TypeScript is a language for application-scale JavaScript.',
+		date: new Date().toISOString(),
+		author: 'microsoft',
+	},
+	{
+		name: 'tailwindcss',
+		version: '4.1.0',
+		description: 'A utility-first CSS framework for rapid UI development.',
+		date: new Date().toISOString(),
+		author: 'tailwindlabs',
+	},
+	{
+		name: 'vite',
+		version: '6.3.0',
+		description: 'Next generation frontend tooling.',
+		date: new Date().toISOString(),
+		author: 'vitejs',
+	},
+	{
+		name: 'eslint',
+		version: '9.24.0',
+		description: 'An AST-based pattern checker for JavaScript.',
+		date: new Date().toISOString(),
+		author: 'eslint',
+	},
+]
 
 interface Props {
 	isActive: boolean
 	dimensions?: {columns: number; rows: number}
 }
 
-function parseRssDate(dateStr: string): Date {
+function parseNpmDate(dateStr: string): Date {
 	try {
 		return new Date(dateStr)
 	} catch {
@@ -166,7 +156,9 @@ function matchesCategory(
 	if (category === 'all') return true
 
 	const searchText = `${name} ${description}`.toLowerCase()
-	const keywords = CATEGORY_KEYWORDS[category]
+	const keywords = CATEGORY_QUERIES[category]
+		.split('+')
+		.filter(k => k.length > 0)
 
 	return keywords.some(keyword => searchText.includes(keyword.toLowerCase()))
 }
@@ -175,7 +167,8 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 	const {columns = 120, rows = 30} = dimensions || {}
 	const fontScale = useFontScale(columns, rows)
 
-	const [allPackages, setAllPackages] = useState<NpmPackage[]>([])
+	const [allPackages, setAllPackages] =
+		useState<NpmPackage[]>(FALLBACK_PACKAGES)
 	const [loading, setLoading] = useState(true)
 	const [category, setCategory] = useState<Category>('all')
 	const [timeframe, setTimeframe] = useState<TimeFrame>('today')
@@ -183,62 +176,60 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 	const fetchReleases = useCallback(async () => {
 		try {
 			setLoading(true)
-			const response = await fetch('https://registry.npmjs.com/-/rss')
-			const xml = await response.text()
 
-			const packageMatches = xml.matchAll(
-				/<item>[\s\S]*?<title>([^<]+)<\/title>[\s\S]*?<description>([^<]*)<\/description>[\s\S]*?<author>([^<]+)<\/author>[\s\S]*?<dc:creator>[^<]*<\/dc:creator>[\s\S]*?<pubDate>([^<]+)<\/pubDate>/g,
+			const response = await fetch(
+				'https://registry.npmjs.org/-/v1/search?text=*&size=50&popularity=1.0',
 			)
 
-			const packages: NpmPackage[] = []
-			for (const match of packageMatches) {
-				const titleMatch = match[1]
-				const descMatch = match[2]
-				const authorMatch = match[3]
-				const dateMatch = match[4]
-
-				const atIndex = titleMatch.lastIndexOf('@')
-				if (atIndex === -1) continue
-
-				const name = titleMatch.substring(0, atIndex)
-				const version = titleMatch.substring(atIndex + 1)
-
-				packages.push({
-					name,
-					version,
-					description: descMatch.replace(/<[^>]*>/g, '').substring(0, 100),
-					author: authorMatch,
-					date: dateMatch,
-				})
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`)
 			}
 
-			setAllPackages(packages.slice(0, 50))
-		} catch (e) {
-			console.error('Error fetching NPM releases:', e)
-			setAllPackages([
-				{
-					name: 'react',
-					version: '19.2.0',
-					description:
-						'React is a JavaScript library for building user interfaces.',
-					date: new Date().toISOString(),
-					author: 'facebook',
-				},
-				{
-					name: 'next',
-					version: '15.1.0',
-					description: 'The React Framework',
-					date: new Date().toISOString(),
-					author: 'vercel',
-				},
-				{
-					name: 'bun',
-					version: '1.3.12',
-					description: 'Fast all-in-one JavaScript runtime',
-					date: new Date().toISOString(),
-					author: 'oven-sh',
-				},
-			])
+			/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+			const data: any = await response.json()
+
+			const packages: NpmPackage[] = (data.objects || [])
+				.map(
+					(obj: {
+						package: {
+							name: string
+							version: string
+							description: string
+							date: string
+							author?: {name?: string} | string
+						}
+					}) => {
+						const pkg = obj.package
+						const authorName =
+							typeof pkg.author === 'object' && pkg.author?.name
+								? pkg.author.name
+								: typeof pkg.author === 'string'
+									? pkg.author
+									: 'unknown'
+						return {
+							name: pkg.name || 'unknown',
+							version: pkg.version || '0.0.0',
+							description: (pkg.description || '').substring(0, 100),
+							date: pkg.date || new Date().toISOString(),
+							author: authorName,
+						}
+					},
+				)
+				.filter(
+					(pkg: NpmPackage) =>
+						pkg.name !== 'unknown' && pkg.version !== '0.0.0',
+				)
+
+			if (packages.length > 0) {
+				setAllPackages(packages)
+			} else {
+				// If API returned empty results, use fallback
+				setAllPackages(FALLBACK_PACKAGES)
+			}
+		} catch (_e) {
+			// Use fallback data on error
+			console.error('Failed to fetch NPM releases:', _e)
+			setAllPackages(FALLBACK_PACKAGES)
 		} finally {
 			setLoading(false)
 		}
@@ -272,14 +263,14 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 
 	const filteredPackages = allPackages
 		.filter(pkg => {
-			const date = parseRssDate(pkg.date)
+			const date = parseNpmDate(pkg.date)
 			if (!isWithinTimeFrame(date, timeframe)) return false
 			return matchesCategory(pkg.name, pkg.description, category)
 		})
 		.slice(0, 6)
 
 	const formatTimeAgo = (dateStr: string) => {
-		const date = parseRssDate(dateStr)
+		const date = parseNpmDate(dateStr)
 		const now = new Date()
 		const diffMs = now.getTime() - date.getTime()
 		const diffHours = diffMs / (1000 * 60 * 60)
@@ -306,9 +297,19 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 				flexDirection="column"
 				gap={fontScale.gap}
 			>
+				{filteredPackages.length === 0 && !loading && (
+					<Box
+						flexDirection="column"
+						alignItems="center"
+						paddingY={1}
+					>
+						<Text dimColor>No packages found for this filter.</Text>
+						<Text dimColor>Press C to change category</Text>
+					</Box>
+				)}
 				{filteredPackages.map((pkg, i) => (
 					<Box
-						key={i}
+						key={`${pkg.name}-${i}`}
 						flexDirection="column"
 						marginBottom={1}
 					>
@@ -333,6 +334,7 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 						</Text>
 					</Box>
 				))}
+				{isActive && <Text dimColor> C=Category T=Time</Text>}
 			</Box>
 		</Panel>
 	)

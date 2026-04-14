@@ -31,6 +31,7 @@ interface Plugin {
 		dimensions?: {columns: number; rows: number}
 	}>
 	enabled: boolean
+	keyHints?: string
 }
 
 interface AppContextType {
@@ -93,12 +94,14 @@ export default function App() {
 			name: 'GitHub Trending',
 			component: GithubTrendingPanel,
 			enabled: true,
+			keyHints: 'L=Language T=Time',
 		},
 		{
 			id: 'npm',
 			name: 'NPM Releases',
 			component: NpmReleasesPanel,
 			enabled: true,
+			keyHints: 'C=Category T=Time',
 		},
 	])
 

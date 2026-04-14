@@ -122,6 +122,8 @@ export default function Dashboard() {
 		)
 	}
 
+	const activePanelHints = enabledPanels[activePanel]?.keyHints
+
 	return (
 		<Box
 			flexDirection="column"
@@ -184,9 +186,10 @@ export default function Dashboard() {
 				borderRight={false}
 				borderColor="cyan"
 			>
-				<Text dimColor>
-					← → ↑ ↓ Navigate Panels • Tab Cycle • M Menu • Q Quit
-				</Text>
+				<Box flexDirection="column">
+					<Text dimColor>← → ↑ ↓ Navigate • Tab Cycle • M Menu • Q Quit</Text>
+					{activePanelHints && <Text color="yellow">{activePanelHints}</Text>}
+				</Box>
 				<Text>
 					Active:{' '}
 					<Text color="cyan">{enabledPanels[activePanel]?.name || 'None'}</Text>

@@ -155,6 +155,7 @@ export default function GithubTrendingPanel({isActive, dimensions}: Props) {
 				flexDirection="column"
 				gap={fontScale.gap}
 			>
+				{isActive && <Text dimColor> L=Language T=Time</Text>}
 				{repos.map((repo, i) => (
 					<Box
 						key={i}
