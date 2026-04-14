@@ -1,0 +1,69 @@
+{
+	"name": "involvex-terminal-dashboard",
+	"version": "0.0.0",
+	"description": "A Modern Cli Dashboard to watch latest trending git repos, and npm releases",
+	"repository": {
+		"type": "git",
+		"url": ""
+	},
+	"license": "MIT",
+	"author": "involvex",
+	"type": "module",
+	"bin": {
+		"involvex-terminal-dashboard": "dist/cli.js"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"prebuild": "bun run format && bun run lint:fix && bun run typecheck",
+		"build": "bun build src/cli.tsx --outdir dist --target node",
+		"dev": "bun run --hot src/cli.tsx",
+		"format": "prettier --write .",
+		"lint": "eslint src",
+		"lint:fix": "eslint src --fix",
+		"start": "bun run src/cli.tsx",
+		"typecheck": "tsc --noEmit"
+	},
+	"prettier": "@involvex/prettier-config",
+	"dependencies": {
+		"ink": "latest",
+		"ink-divider": "^4.1.1",
+		"ink-select-input": "latest",
+		"ink-spinner": "^5.0.0",
+		"ink-text-input": "latest",
+		"ink-use-stdout-dimensions": "^1.0.5",
+		"meow": "latest",
+		"node-fetch": "^3.3.2",
+		"react": "latest",
+		"react-devtools-core": "latest",
+		"systeminformation": "^5.31.5"
+	},
+	"devDependencies": {
+		"@eslint/js": "latest",
+		"@involvex/prettier-config": "latest",
+		"@types/ink": "latest",
+		"@types/ink-select-input": "latest",
+		"@types/ink-text-input": "latest",
+		"@types/node": "latest",
+		"@types/react": "latest",
+		"@typescript-eslint/eslint-plugin": "latest",
+		"@typescript-eslint/parser": "latest",
+		"chalk": "latest",
+		"eslint": "latest",
+		"eslint-plugin-react": "latest",
+		"eslint-plugin-react-hooks": "latest",
+		"globals": "latest",
+		"ink-testing-library": "^3.0.0",
+		"jiti": "latest",
+		"prettier": "latest",
+		"prettier-plugin-organize-imports": "^4.3.0",
+		"prettier-plugin-packagejson": "^3.0.0",
+		"prettier-plugin-sort-imports": "^1.8.10",
+		"ts-node": "latest",
+		"typescript": "latest"
+	},
+	"engines": {
+		"node": ">=16"
+	}
+}
