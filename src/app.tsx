@@ -5,9 +5,8 @@ import {Text, Box, useInput} from 'ink'
 
 import GithubTrendingPanel from './panels/github-trending-panel.js'
 import NpmReleasesPanel from './panels/npm-panel.js'
+import SystemPanel from './panels/system-panel.js'
 import Settings from './commands/settings.js'
-import RamPanel from './panels/ram-panel.js'
-import CpuPanel from './panels/cpu-panel.js'
 import Version from './commands/version.js'
 import About from './commands/about.js'
 import Dashboard from './dashboard.js'
@@ -78,15 +77,9 @@ export default function App() {
 	const [screen, setScreen] = useState<AppScreen>('dashboard')
 	const [plugins, setPlugins] = useState<Plugin[]>([
 		{
-			id: 'cpu',
-			name: 'CPU Monitor',
-			component: CpuPanel,
-			enabled: true,
-		},
-		{
-			id: 'ram',
-			name: 'RAM Monitor',
-			component: RamPanel,
+			id: 'system',
+			name: 'System Monitor',
+			component: SystemPanel,
 			enabled: true,
 		},
 		{

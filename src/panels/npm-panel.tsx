@@ -163,6 +163,27 @@ function matchesCategory(
 	return keywords.some(keyword => searchText.includes(keyword.toLowerCase()))
 }
 
+function categorizePackage(name: string, description: string): Category {
+	const specificCategories: Category[] = [
+		'frontend',
+		'backend',
+		'cli',
+		'css',
+		'testing',
+		'frameworks',
+		'mobile',
+		'docs',
+		'iot',
+		'coverage',
+		'robotics',
+		'math',
+	]
+	for (const cat of specificCategories) {
+		if (matchesCategory(name, description, cat)) return cat
+	}
+	return 'cli'
+}
+
 export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 	const {columns = 120, rows = 30} = dimensions || {}
 	const fontScale = useFontScale(columns, rows)
@@ -261,13 +282,27 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 		{isActive: isActive},
 	)
 
-	const filteredPackages = allPackages
-		.filter(pkg => {
-			const date = parseNpmDate(pkg.date)
-			if (!isWithinTimeFrame(date, timeframe)) return false
-			return matchesCategory(pkg.name, pkg.description, category)
-		})
-		.slice(0, 6)
+	const filteredPackages = allPackages.filter(pkg => {
+		const date = parseNpmDate(pkg.date)
+		if (!isWithinTimeFrame(date, timeframe)) return false
+		return matchesCategory(pkg.name, pkg.description, category)
+	})
+
+	// Group packages by category when viewing "all"
+	const groupedPackages: [Category, NpmPackage[]][] = []
+	if (category === 'all') {
+		const groups = new Map<Category, NpmPackage[]>()
+		for (const pkg of filteredPackages) {
+			const cat = categorizePackage(pkg.name, pkg.description)
+			if (!groups.has(cat)) groups.set(cat, [])
+			groups.get(cat)!.push(pkg)
+		}
+		for (const [cat, pkgs] of groups) {
+			groupedPackages.push([cat, pkgs.slice(0, 2)])
+		}
+		// Limit to 5 groups max
+		groupedPackages.length = Math.min(groupedPackages.length, 5)
+	}
 
 	const formatTimeAgo = (dateStr: string) => {
 		const date = parseNpmDate(dateStr)
@@ -284,6 +319,33 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 		}
 		return `${Math.floor(diffHours / 24)}d ago`
 	}
+
+	const renderPackage = (pkg: NpmPackage, i: number) => (
+		<Box
+			key={`${pkg.name}-${i}`}
+			flexDirection="column"
+		>
+			<Box justifyContent="space-between">
+				<Text>
+					<Text
+						color="magenta"
+						bold
+					>
+						{pkg.name}
+					</Text>
+					<Text dimColor> @ </Text>
+					<Text color="cyan">{pkg.version}</Text>
+				</Text>
+				<Text dimColor>{formatTimeAgo(pkg.date)}</Text>
+			</Box>
+			<Text
+				dimColor
+				wrap="truncate-end"
+			>
+				{pkg.description}
+			</Text>
+		</Box>
+	)
 
 	const title = `📦 NPM [${CATEGORY_LABELS[category]}] [${timeframe}]`
 
@@ -307,33 +369,50 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 						<Text dimColor>Press C to change category</Text>
 					</Box>
 				)}
-				{filteredPackages.map((pkg, i) => (
-					<Box
-						key={`${pkg.name}-${i}`}
-						flexDirection="column"
-						marginBottom={1}
-					>
-						<Box justifyContent="space-between">
-							<Text>
+				{category === 'all' && groupedPackages.length > 0
+					? groupedPackages.map(([cat, pkgs]) => (
+							<Box
+								key={cat}
+								flexDirection="column"
+								marginBottom={1}
+							>
 								<Text
-									color="magenta"
 									bold
+									color="yellow"
 								>
-									{pkg.name}
+									── {CATEGORY_LABELS[cat]} ──
 								</Text>
-								<Text dimColor> @ </Text>
-								<Text color="cyan">{pkg.version}</Text>
-							</Text>
-							<Text dimColor>{formatTimeAgo(pkg.date)}</Text>
-						</Box>
-						<Text
-							dimColor
-							wrap="truncate-end"
-						>
-							{pkg.description}
-						</Text>
-					</Box>
-				))}
+								{pkgs.map((pkg, i) => renderPackage(pkg, i))}
+							</Box>
+						))
+					: category !== 'all' &&
+						filteredPackages.slice(0, 6).map((pkg, i) => (
+							<Box
+								key={`${pkg.name}-${i}`}
+								flexDirection="column"
+								marginBottom={1}
+							>
+								<Box justifyContent="space-between">
+									<Text>
+										<Text
+											color="magenta"
+											bold
+										>
+											{pkg.name}
+										</Text>
+										<Text dimColor> @ </Text>
+										<Text color="cyan">{pkg.version}</Text>
+									</Text>
+									<Text dimColor>{formatTimeAgo(pkg.date)}</Text>
+								</Box>
+								<Text
+									dimColor
+									wrap="truncate-end"
+								>
+									{pkg.description}
+								</Text>
+							</Box>
+						))}
 				{isActive && <Text dimColor> C=Category T=Time</Text>}
 			</Box>
 		</Panel>
