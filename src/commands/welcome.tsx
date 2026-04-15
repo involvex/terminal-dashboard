@@ -3,10 +3,10 @@ import {useState, useEffect} from 'react'
 import {Text, Box, useInput} from 'ink'
 
 interface WelcomeProps {
-	onComplete: () => void
+	onComplete?: () => void
 }
 
-export default function Welcome({onComplete}: WelcomeProps) {
+export default function Welcome({onComplete}: WelcomeProps = {}) {
 	const [frame, _setFrame] = useState(0)
 	const [showSubtitle, setShowSubtitle] = useState(false)
 
@@ -18,14 +18,16 @@ export default function Welcome({onComplete}: WelcomeProps) {
 	}, [])
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			onComplete()
-		}, 2500)
-		return () => clearTimeout(timer)
+		if (onComplete) {
+			const timer = setTimeout(() => {
+				onComplete()
+			}, 2500)
+			return () => clearTimeout(timer)
+		}
 	}, [onComplete])
 
 	useInput((_input, key) => {
-		if (key.return || key.escape) {
+		if ((key.return || key.escape) && onComplete) {
 			onComplete()
 		}
 	})

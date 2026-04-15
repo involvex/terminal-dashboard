@@ -36,7 +36,7 @@ export default function Help() {
 					</Text>
 					<Text>
 						{' '}
-						$ <Text color="white">{pkg.name} --help</Text>
+						$ <Text color="white">{pkg.name} help</Text>
 					</Text>
 					<Text>
 						{' '}
@@ -46,42 +46,13 @@ export default function Help() {
 						{' '}
 						$ <Text color="white">{pkg.name} --about</Text>
 					</Text>
-				</Box>
-			</Box>
-
-			<Box
-				flexDirection="column"
-				marginBottom={2}
-			>
-				<Text
-					bold
-					color="magenta"
-				>
-					Options:
-				</Text>
-				<Box
-					marginLeft={2}
-					flexDirection="column"
-				>
 					<Text>
-						<Text color="green">--help</Text>
-						<Text dimColor> Show this help message</Text>
+						{' '}
+						$ <Text color="white">{pkg.name} --settings</Text>
 					</Text>
 					<Text>
-						<Text color="green">--version</Text>
-						<Text dimColor> Show version</Text>
-					</Text>
-					<Text>
-						<Text color="green">--about</Text>
-						<Text dimColor> Show about info</Text>
-					</Text>
-					<Text>
-						<Text color="green">--settings</Text>
-						<Text dimColor> Open settings</Text>
-					</Text>
-					<Text>
-						<Text color="green">--demo</Text>
-						<Text dimColor> Show component demo</Text>
+						{' '}
+						$ <Text color="white">{pkg.name} --demo</Text>
 					</Text>
 				</Box>
 			</Box>
@@ -90,32 +61,6 @@ export default function Help() {
 				flexDirection="column"
 				marginBottom={2}
 			>
-				<Text
-					bold
-					color="magenta"
-				>
-					Navigation:
-				</Text>
-				<Box
-					marginLeft={2}
-					flexDirection="column"
-				>
-					<Text>
-						<Text color="green">↑/↓</Text>
-						<Text dimColor> Navigate menu</Text>
-					</Text>
-					<Text>
-						<Text color="green">Enter</Text>
-						<Text dimColor> Select option</Text>
-					</Text>
-					<Text>
-						<Text color="green">Esc</Text>
-						<Text dimColor> Go back</Text>
-					</Text>
-				</Box>
-			</Box>
-
-			<Box flexDirection="column">
 				<Text
 					bold
 					color="magenta"
@@ -127,28 +72,120 @@ export default function Help() {
 					flexDirection="column"
 				>
 					<Text>
-						{' '}
-						<Text color="cyan">help</Text> - Show this help
+						<Text color="cyan">dashboard</Text>
+						<Text dimColor> Launch dashboard (default)</Text>
 					</Text>
 					<Text>
-						{' '}
-						<Text color="cyan">about</Text> - Show about info
+						<Text color="cyan">help</Text>
+						<Text dimColor> Show help (-h, --help)</Text>
 					</Text>
 					<Text>
-						{' '}
-						<Text color="cyan">version</Text> - Show version
+						<Text color="cyan">version</Text>
+						<Text dimColor> Show version (-v, --version)</Text>
 					</Text>
 					<Text>
-						{' '}
-						<Text color="cyan">settings</Text> - Open settings
+						<Text color="cyan">about</Text>
+						<Text dimColor> Show about info</Text>
 					</Text>
 					<Text>
-						{' '}
-						<Text color="cyan">demo</Text> - Show demo
+						<Text color="cyan">welcome</Text>
+						<Text dimColor> Show welcome screen</Text>
 					</Text>
 					<Text>
-						{' '}
-						<Text color="cyan">exit</Text> - Exit application
+						<Text color="cyan">demo</Text>
+						<Text dimColor> Show component demo</Text>
+					</Text>
+					<Text>
+						<Text color="cyan">settings</Text>
+						<Text dimColor> Open settings</Text>
+					</Text>
+				</Box>
+			</Box>
+
+			<Box
+				flexDirection="column"
+				marginBottom={2}
+			>
+				<Text
+					bold
+					color="magenta"
+				>
+					Dashboard Navigation:
+				</Text>
+				<Box
+					marginLeft={2}
+					flexDirection="column"
+				>
+					<Text>
+						<Text color="green">Tab</Text>
+						<Text dimColor> Cycle panels</Text>
+					</Text>
+					<Text>
+						<Text color="green">↑/↓/←/→</Text>
+						<Text dimColor> Navigate panels</Text>
+					</Text>
+					<Text>
+						<Text color="green">M</Text>
+						<Text dimColor> Open menu</Text>
+					</Text>
+					<Text>
+						<Text color="green">Esc/Q</Text>
+						<Text dimColor> Quit</Text>
+					</Text>
+				</Box>
+			</Box>
+
+			<Box
+				flexDirection="column"
+				marginBottom={2}
+			>
+				<Text
+					bold
+					color="magenta"
+				>
+					Panel Controls:
+				</Text>
+				<Box
+					marginLeft={2}
+					flexDirection="column"
+				>
+					<Text>
+						<Text color="green">GitHub</Text>
+						<Text dimColor> L=Language T=Time</Text>
+					</Text>
+					<Text>
+						<Text color="green">NPM</Text>
+						<Text dimColor> C=Category T=Time</Text>
+					</Text>
+				</Box>
+			</Box>
+
+			<Box flexDirection="column">
+				<Text
+					bold
+					color="magenta"
+				>
+					Options:
+				</Text>
+				<Box
+					marginLeft={2}
+					flexDirection="column"
+				>
+					<Text>
+						<Text color="green">-h, --help</Text>
+						<Text dimColor> Show help</Text>
+					</Text>
+					<Text>
+						<Text color="green">-v, --version</Text>
+						<Text dimColor> Show version</Text>
+					</Text>
+					<Text>
+						<Text color="green">-d, --debug</Text>
+						<Text dimColor> Enable debug mode</Text>
+					</Text>
+					<Text>
+						<Text color="green">--no-clear</Text>
+						<Text dimColor> Disable clear on exit</Text>
 					</Text>
 				</Box>
 			</Box>
