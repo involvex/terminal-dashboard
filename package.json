@@ -2,6 +2,15 @@
 	"name": "@involvex/terminal-dashboard",
 	"version": "0.0.0",
 	"description": "A Modern Cli Dashboard to watch latest trending git repos, and npm releases",
+	"keywords": [
+		"terminal",
+		"dashboard",
+		"ink",
+		"typescript",
+		"cli",
+		"ink-app",
+		"terminal-dashboard"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/involvex/terminal-dashboard.git"
