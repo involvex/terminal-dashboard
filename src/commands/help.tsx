@@ -99,6 +99,10 @@ export default function Help() {
 						<Text color="cyan">settings</Text>
 						<Text dimColor> Open settings</Text>
 					</Text>
+					<Text>
+						<Text color="cyan">git</Text>
+						<Text dimColor> Open Git panel</Text>
+					</Text>
 				</Box>
 			</Box>
 
@@ -156,6 +160,39 @@ export default function Help() {
 					<Text>
 						<Text color="green">NPM</Text>
 						<Text dimColor> C=Category T=Time</Text>
+					</Text>
+				</Box>
+			</Box>
+
+			<Box
+				flexDirection="column"
+				marginBottom={2}
+			>
+				<Text
+					bold
+					color="magenta"
+				>
+					Git Panel:
+				</Text>
+				<Box
+					marginLeft={2}
+					flexDirection="column"
+				>
+					<Text>
+						<Text color="green">↑/↓</Text>
+						<Text dimColor> Navigate files/sections</Text>
+					</Text>
+					<Text>
+						<Text color="green">Space/Enter</Text>
+						<Text dimColor> Stage/Unstage file</Text>
+					</Text>
+					<Text>
+						<Text color="green">C</Text>
+						<Text dimColor> Open commit input</Text>
+					</Text>
+					<Text>
+						<Text color="green">R</Text>
+						<Text dimColor> Refresh status</Text>
 					</Text>
 				</Box>
 			</Box>

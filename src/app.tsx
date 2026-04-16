@@ -12,6 +12,7 @@ import About from './commands/about.js'
 import Dashboard from './dashboard.js'
 import Help from './commands/help.js'
 import Exit from './commands/exit.js'
+import Git from './commands/git.js'
 
 type AppScreen =
 	| 'menu'
@@ -21,6 +22,7 @@ type AppScreen =
 	| 'settings'
 	| 'dashboard'
 	| 'exit'
+	| 'git'
 
 interface Plugin {
 	id: string
@@ -121,6 +123,7 @@ export default function App() {
 
 	const menuItems: SelectItem<AppScreen>[] = [
 		{label: '🚀 Dashboard', value: 'dashboard'},
+		{label: '→ Git', value: 'git'},
 		{label: '→ Help', value: 'help'},
 		{label: '→ Settings', value: 'settings'},
 		{label: '→ About', value: 'about'},
@@ -221,6 +224,14 @@ export default function App() {
 		return (
 			<BackableScreen onBack={goMenu}>
 				<Version />
+			</BackableScreen>
+		)
+	}
+
+	if (screen === 'git') {
+		return (
+			<BackableScreen onBack={goMenu}>
+				<Git />
 			</BackableScreen>
 		)
 	}

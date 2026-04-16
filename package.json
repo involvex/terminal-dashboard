@@ -48,6 +48,7 @@
 		"node-fetch": "^3.3.2",
 		"react": "latest",
 		"react-devtools-core": "latest",
+		"simple-git": "^3.36.0",
 		"systeminformation": "^5.31.5"
 	},
 	"devDependencies": {
