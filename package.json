@@ -44,6 +44,7 @@
 		"ink-spinner": "^5.0.0",
 		"ink-text-input": "latest",
 		"ink-use-stdout-dimensions": "^1.0.5",
+		"kill-port": "^2.0.1",
 		"meow": "latest",
 		"node-fetch": "^3.3.2",
 		"react": "latest",

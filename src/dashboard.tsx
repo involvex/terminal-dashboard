@@ -249,7 +249,10 @@ export default function Dashboard() {
 				borderColor="cyan"
 			>
 				<Box flexDirection="column">
-					<Text dimColor>← → ↑ ↓ Navigate • Tab Cycle • M Menu • Q Quit</Text>
+					<Text dimColor>
+						← → ↑ ↓ Navigate • Tab Cycle • M Menu • Ctrl+G Git • Ctrl+P Tasks •
+						Q Quit
+					</Text>
 					{activePanelHints && <Text color="yellow">{activePanelHints}</Text>}
 				</Box>
 				<Text>

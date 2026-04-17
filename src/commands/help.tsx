@@ -103,6 +103,10 @@ export default function Help() {
 						<Text color="cyan">git</Text>
 						<Text dimColor> Open Git panel</Text>
 					</Text>
+					<Text>
+						<Text color="cyan">tasks</Text>
+						<Text dimColor> Open Task Manager</Text>
+					</Text>
 				</Box>
 			</Box>
 
@@ -193,6 +197,39 @@ export default function Help() {
 					<Text>
 						<Text color="green">R</Text>
 						<Text dimColor> Refresh status</Text>
+					</Text>
+				</Box>
+			</Box>
+
+			<Box
+				flexDirection="column"
+				marginBottom={2}
+			>
+				<Text
+					bold
+					color="magenta"
+				>
+					Tasks Panel:
+				</Text>
+				<Box
+					marginLeft={2}
+					flexDirection="column"
+				>
+					<Text>
+						<Text color="green">↑/↓</Text>
+						<Text dimColor> Navigate processes</Text>
+					</Text>
+					<Text>
+						<Text color="green">C/M/N</Text>
+						<Text dimColor> Sort by CPU/Memory/Name</Text>
+					</Text>
+					<Text>
+						<Text color="green">K</Text>
+						<Text dimColor> Kill selected process</Text>
+					</Text>
+					<Text>
+						<Text color="green">R</Text>
+						<Text dimColor> Refresh list</Text>
 					</Text>
 				</Box>
 			</Box>

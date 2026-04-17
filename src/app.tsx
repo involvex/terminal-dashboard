@@ -8,6 +8,7 @@ import NpmReleasesPanel from './panels/npm-panel.js'
 import SystemPanel from './panels/system-panel.js'
 import Settings from './commands/settings.js'
 import Version from './commands/version.js'
+import Tasks from './commands/tasks.js'
 import About from './commands/about.js'
 import Dashboard from './dashboard.js'
 import Help from './commands/help.js'
@@ -23,6 +24,7 @@ type AppScreen =
 	| 'dashboard'
 	| 'exit'
 	| 'git'
+	| 'tasks'
 
 interface Plugin {
 	id: string
@@ -119,11 +121,18 @@ export default function App() {
 		if ((input === 'm' || input === 'M') && key.ctrl) {
 			setScreen(prev => (prev === 'dashboard' ? 'menu' : 'dashboard'))
 		}
+		if ((input === 'g' || input === 'G') && key.ctrl) {
+			setScreen('git')
+		}
+		if ((input === 'p' || input === 'P') && key.ctrl) {
+			setScreen('tasks')
+		}
 	})
 
 	const menuItems: SelectItem<AppScreen>[] = [
 		{label: '🚀 Dashboard', value: 'dashboard'},
 		{label: '→ Git', value: 'git'},
+		{label: '→ Tasks', value: 'tasks'},
 		{label: '→ Help', value: 'help'},
 		{label: '→ Settings', value: 'settings'},
 		{label: '→ About', value: 'about'},
@@ -232,6 +241,14 @@ export default function App() {
 		return (
 			<BackableScreen onBack={goMenu}>
 				<Git />
+			</BackableScreen>
+		)
+	}
+
+	if (screen === 'tasks') {
+		return (
+			<BackableScreen onBack={goMenu}>
+				<Tasks />
 			</BackableScreen>
 		)
 	}
