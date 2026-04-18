@@ -1,6 +1,7 @@
+import {loadSettings, saveSettings, type FontSize} from '../config/store.js'
+import {useState, useEffect} from 'react'
 import {useAppContext} from '../app.js'
 import {Text, Box, useInput} from 'ink'
-import {useState} from 'react'
 import type {Key} from 'ink'
 
 type Theme = 'cyan' | 'magenta' | 'green' | 'yellow' | 'blue'
@@ -13,29 +14,53 @@ const themes: {label: string; value: Theme}[] = [
 	{label: 'Blue', value: 'blue'},
 ]
 
-type FocusArea = 'theme' | 'panels'
+const fontSizes: {label: string; value: FontSize}[] = [
+	{label: 'Small (12px)', value: 12},
+	{label: 'Medium (14px)', value: 14},
+	{label: 'Large (16px)', value: 16},
+	{label: 'XL (18px)', value: 18},
+]
+
+type FocusArea = 'theme' | 'fontSize' | 'panels'
 
 export default function Settings() {
 	const {plugins, togglePlugin} = useAppContext()
 	const [theme, setTheme] = useState<Theme>('cyan')
+	const [fontSize, setFontSize] = useState<FontSize>(14)
 	const [animations, _setAnimations] = useState(true)
 	const [focusArea, setFocusArea] = useState<FocusArea>('theme')
 	const [selectedIndex, setSelectedIndex] = useState(0)
 
+	useEffect(() => {
+		loadSettings().then(settings => {
+			setFontSize(settings.fontSize)
+		})
+	}, [])
+
+	async function handleFontSizeChange(size: FontSize) {
+		setFontSize(size)
+		const settings = await loadSettings()
+		await saveSettings({...settings, fontSize: size})
+	}
+
 	useInput((input: string, key: Key) => {
 		if (key.escape) {
-			return // BackableScreen handles escape
+			return
 		}
 
-		// Tab switches between theme and panels sections
+		const areas: FocusArea[] = ['theme', 'fontSize', 'panels']
+
 		if (key.tab) {
-			setFocusArea(prev => (prev === 'theme' ? 'panels' : 'theme'))
+			setFocusArea(prev => {
+				const currentIndex = areas.indexOf(prev)
+				const nextIndex = (currentIndex + 1) % areas.length
+				return areas[nextIndex]
+			})
 			setSelectedIndex(0)
 			return
 		}
 
 		if (focusArea === 'theme') {
-			// Navigate themes
 			if (key.upArrow) {
 				setSelectedIndex(prev => (prev > 0 ? prev - 1 : themes.length - 1))
 			}
@@ -45,8 +70,17 @@ export default function Settings() {
 			if (key.return || input === ' ') {
 				setTheme(themes[selectedIndex].value)
 			}
+		} else if (focusArea === 'fontSize') {
+			if (key.upArrow) {
+				setSelectedIndex(prev => (prev > 0 ? prev - 1 : fontSizes.length - 1))
+			}
+			if (key.downArrow) {
+				setSelectedIndex(prev => (prev < fontSizes.length - 1 ? prev + 1 : 0))
+			}
+			if (key.return || input === ' ') {
+				handleFontSizeChange(fontSizes[selectedIndex].value)
+			}
 		} else {
-			// Navigate panels
 			if (key.upArrow) {
 				setSelectedIndex(prev => (prev > 0 ? prev - 1 : plugins.length - 1))
 			}
@@ -121,6 +155,58 @@ export default function Settings() {
 							))}
 						</Box>
 						{focusArea === 'theme' && (
+							<Box marginLeft={2}>
+								<Text dimColor>↑↓ Navigate • Enter/Space Select</Text>
+							</Box>
+						)}
+					</Box>
+				</Box>
+
+				{/* Font Size Section */}
+				<Box
+					borderStyle={focusArea === 'fontSize' ? 'single' : undefined}
+					borderColor={focusArea === 'fontSize' ? 'cyan' : undefined}
+					paddingX={1}
+					marginBottom={1}
+				>
+					<Box
+						flexDirection="column"
+						width="100%"
+					>
+						<Box marginBottom={1}>
+							<Text
+								bold
+								color={focusArea === 'fontSize' ? 'cyan' : 'white'}
+							>
+								{focusArea === 'fontSize' ? '▸ ' : '  '}Font Size
+							</Text>
+						</Box>
+						<Box
+							marginLeft={2}
+							flexDirection="column"
+						>
+							{fontSizes.map((fs, index) => (
+								<Box key={fs.value}>
+									<Text
+										color={
+											focusArea === 'fontSize' && index === selectedIndex
+												? 'cyan'
+												: fontSize === fs.value
+													? 'green'
+													: undefined
+										}
+										bold={focusArea === 'fontSize' && index === selectedIndex}
+									>
+										{focusArea === 'fontSize' && index === selectedIndex
+											? '❯ '
+											: '  '}
+										{fontSize === fs.value ? '● ' : '○ '}
+										{fs.label}
+									</Text>
+								</Box>
+							))}
+						</Box>
+						{focusArea === 'fontSize' && (
 							<Box marginLeft={2}>
 								<Text dimColor>↑↓ Navigate • Enter/Space Select</Text>
 							</Box>
@@ -207,8 +293,8 @@ export default function Settings() {
 				padding={1}
 			>
 				<Text dimColor>
-					Current: {theme} theme, animations {animations ? 'on' : 'off'},{' '}
-					{plugins.filter(p => p.enabled).length}/{plugins.length} panels active
+					Current: {theme} theme, {fontSize}px font,{' '}
+					{plugins.filter(p => p.enabled).length}/{plugins.length} panels
 				</Text>
 			</Box>
 		</Box>

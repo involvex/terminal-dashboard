@@ -1,40 +1,37 @@
 #!/usr/bin/env node
 import DisplayVersion from './commands/version.js'
 import Settings from './commands/settings.js'
-import Welcome from './commands/welcome.js'
 import About from './commands/about.js'
 import Help from './commands/help.js'
-import Demo from './commands/demo.js'
 import App from './app.js'
 import {render} from 'ink'
 import meow from 'meow'
 
 const cli = meow(
 	`
-	Usage
-	  $ involvex-terminal-dashboard [command]
+  Usage
+    $ involvex-terminal-dashboard [command]
 
-	Commands
-	  dashboard    Launch the interactive dashboard (default)
-	  help        Show this help message
-	  version     Show version info
-	  about       Show about information
-	  welcome     Show welcome screen
-	  demo        Show component demo
-	  settings    Open settings directly
+  Commands
+    dashboard    Launch the interactive dashboard (default)
+    help        Show help message
+    version     Show version info
+    about       Show about information
+    settings    Open settings directly
 
-	Options
-	  -v, --version  Show version
-	  -h, --help     Show help
-	  -d, --debug    Enable debug mode
-	  --no-clear     Disable clear on exit
+  Options
+    -v, --version     Show version
+    -h, --help        Show help
+    -d, --debug       Enable debug mode
+    --no-clear        Disable clear on exit
+    --headless        Run without TTY (for CI/automation)
 
-	Examples
-	  $ involvex-terminal-dashboard
-	  $ involvex-terminal-dashboard help
-	  $ involvex-terminal-dashboard --version
-	  $ involvex-terminal-dashboard about
-	`,
+  Examples
+    $ involvex-terminal-dashboard
+    $ involvex-terminal-dashboard --version
+    $ involvex-terminal-dashboard about
+    $ involvex-terminal-dashboard --headless
+`,
 	{
 		importMeta: import.meta,
 		flags: {
@@ -52,13 +49,7 @@ const cli = meow(
 			noClear: {
 				type: 'boolean',
 			},
-			dashboard: {
-				type: 'boolean',
-			},
-			welcome: {
-				type: 'boolean',
-			},
-			demo: {
+			headless: {
 				type: 'boolean',
 			},
 			settings: {
@@ -74,17 +65,20 @@ const cli = meow(
 const input = cli.input[0] || ''
 const flags = cli.flags
 
+// Enable headless mode
+if (flags.headless) {
+	process.env.HEADLESS = '1'
+}
+
 // Map shortcuts
 const command =
 	input ||
 	(flags.help || input === 'help' ? 'help' : '') ||
 	(flags.version || input === 'version' ? 'version' : '') ||
 	(flags.about || input === 'about' ? 'about' : '') ||
-	(flags.welcome || input === 'welcome' ? 'welcome' : '') ||
-	(flags.demo || input === 'demo' ? 'demo' : '') ||
 	(flags.settings || input === 'settings' ? 'settings' : '') ||
 	'' ||
-	(flags.dashboard ? 'dashboard' : '')
+	'dashboard'
 
 // Enable debug mode if requested
 if (flags.debug) {
@@ -106,12 +100,6 @@ switch (command) {
 		break
 	case 'about':
 		render(<About />)
-		break
-	case 'welcome':
-		render(<Welcome />)
-		break
-	case 'demo':
-		render(<Demo />)
 		break
 	case 'settings':
 		render(<Settings />)

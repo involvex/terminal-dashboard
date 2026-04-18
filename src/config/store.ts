@@ -4,7 +4,15 @@ import path from 'node:path'
 import os from 'node:os'
 
 const CONFIG_DIR = path.join(os.homedir(), '.term-dash')
-const CONFIG_FILE = path.join(CONFIG_DIR, 'commands.json')
+const COMMANDS_FILE = path.join(CONFIG_DIR, 'commands.json')
+const SETTINGS_FILE = path.join(CONFIG_DIR, 'settings.json')
+
+export type FontSize = 12 | 14 | 16 | 18
+
+export interface AppSettings {
+	version: number
+	fontSize: FontSize
+}
 
 const DEFAULT_CONFIG: CommandsConfig = {
 	version: 1,
@@ -28,6 +36,11 @@ const DEFAULT_CONFIG: CommandsConfig = {
 	],
 }
 
+const DEFAULT_SETTINGS: AppSettings = {
+	version: 1,
+	fontSize: 14,
+}
+
 async function ensureConfigDir(): Promise<void> {
 	try {
 		await fs.access(CONFIG_DIR)
@@ -40,7 +53,7 @@ export async function loadCommandsConfig(): Promise<CommandsConfig> {
 	await ensureConfigDir()
 
 	try {
-		const data = await fs.readFile(CONFIG_FILE, 'utf8')
+		const data = await fs.readFile(COMMANDS_FILE, 'utf8')
 		return JSON.parse(data)
 	} catch {
 		await saveCommandsConfig(DEFAULT_CONFIG)
@@ -48,11 +61,28 @@ export async function loadCommandsConfig(): Promise<CommandsConfig> {
 	}
 }
 
+export async function loadSettings(): Promise<AppSettings> {
+	await ensureConfigDir()
+
+	try {
+		const data = await fs.readFile(SETTINGS_FILE, 'utf8')
+		return JSON.parse(data)
+	} catch {
+		await saveSettings(DEFAULT_SETTINGS)
+		return DEFAULT_SETTINGS
+	}
+}
+
+export async function saveSettings(settings: AppSettings): Promise<void> {
+	await ensureConfigDir()
+	await fs.writeFile(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf8')
+}
+
 export async function saveCommandsConfig(
 	config: CommandsConfig,
 ): Promise<void> {
 	await ensureConfigDir()
-	await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8')
+	await fs.writeFile(COMMANDS_FILE, JSON.stringify(config, null, 2), 'utf8')
 }
 
 export async function getCommands(): Promise<QuickCommand[]> {

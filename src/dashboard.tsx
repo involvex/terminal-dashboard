@@ -3,7 +3,7 @@ import {Box, Text, useInput} from 'ink'
 import {useAppContext} from './app.js'
 
 export default function Dashboard() {
-	const {plugins, setScreen} = useAppContext()
+	const {plugins, setScreen, fontSize} = useAppContext()
 	const [dimensions, setDimensions] = useState({columns: 120, rows: 30})
 	const [activePanel, setActivePanel] = useState(0)
 	const [currentTime, setCurrentTime] = useState(new Date())
@@ -98,6 +98,7 @@ export default function Dashboard() {
 					key={panel.id}
 					isActive={activePanel === idx}
 					dimensions={dimensions}
+					fontSize={fontSize}
 				/>
 			)
 		}

@@ -1,5 +1,6 @@
 import SelectInput, {type SelectItem} from './components/select-input.js'
-import {useState, createContext, useContext} from 'react'
+import {useState, createContext, useContext, useEffect} from 'react'
+import {loadSettings, type FontSize} from './config/store.js'
 import pkg from '../package.json' with {type: 'json'}
 import {Text, Box, useInput} from 'ink'
 
@@ -34,6 +35,7 @@ interface Plugin {
 	component: React.ComponentType<{
 		isActive: boolean
 		dimensions?: {columns: number; rows: number}
+		fontSize?: FontSize
 	}>
 	enabled: boolean
 	keyHints?: string
@@ -44,6 +46,7 @@ interface AppContextType {
 	togglePlugin: (id: string) => void
 	currentScreen: AppScreen
 	setScreen: (screen: AppScreen) => void
+	fontSize: FontSize
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -81,6 +84,7 @@ function BackableScreen({children, onBack}: BackableScreenProps) {
 
 export default function App() {
 	const [screen, setScreen] = useState<AppScreen>('dashboard')
+	const [fontSize, setFontSize] = useState<FontSize>(14)
 	const [plugins, setPlugins] = useState<Plugin[]>([
 		{
 			id: 'system',
@@ -103,6 +107,12 @@ export default function App() {
 			keyHints: 'C=Category T=Time',
 		},
 	])
+
+	useEffect(() => {
+		loadSettings().then(settings => {
+			setFontSize(settings.fontSize)
+		})
+	}, [])
 
 	const togglePlugin = (id: string) => {
 		setPlugins(prev =>
@@ -263,7 +273,13 @@ export default function App() {
 		return (
 			<BackableScreen onBack={goMenu}>
 				<AppContext.Provider
-					value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+					value={{
+						plugins,
+						togglePlugin,
+						currentScreen: screen,
+						setScreen,
+						fontSize,
+					}}
 				>
 					<QuickCommands />
 				</AppContext.Provider>
@@ -274,7 +290,13 @@ export default function App() {
 	if (screen === 'dashboard') {
 		return (
 			<AppContext.Provider
-				value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+				value={{
+					plugins,
+					togglePlugin,
+					currentScreen: screen,
+					setScreen,
+					fontSize,
+				}}
 			>
 				<Dashboard />
 			</AppContext.Provider>
@@ -285,7 +307,13 @@ export default function App() {
 		return (
 			<BackableScreen onBack={goMenu}>
 				<AppContext.Provider
-					value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+					value={{
+						plugins,
+						togglePlugin,
+						currentScreen: screen,
+						setScreen,
+						fontSize,
+					}}
 				>
 					<Settings />
 				</AppContext.Provider>

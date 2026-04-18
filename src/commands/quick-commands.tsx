@@ -15,6 +15,8 @@ import Spinner from 'ink-spinner'
 
 type ViewMode = 'list' | 'add' | 'edit' | 'running' | 'confirm-delete'
 
+type InputField = 'name' | 'command' | 'description'
+
 export default function QuickCommands() {
 	const {setScreen} = useAppContext()
 	const [commands, setCommands] = useState<QuickCommand[]>([])
@@ -27,6 +29,7 @@ export default function QuickCommands() {
 	const [formCommand, setFormCommand] = useState('')
 	const [formDescription, setFormDescription] = useState('')
 	const [loading, setLoading] = useState(true)
+	const [focusedField, setFocusedField] = useState<InputField>('name')
 
 	const scrollOffset = useRef(0)
 
@@ -56,6 +59,19 @@ export default function QuickCommands() {
 			}
 		}
 
+		if ((mode === 'add' || mode === 'edit') && (key.upArrow || key.downArrow)) {
+			const fields: InputField[] = ['name', 'command', 'description']
+			const currentIndex = fields.indexOf(focusedField)
+			if (key.upArrow) {
+				setFocusedField(
+					fields[(currentIndex - 1 + fields.length) % fields.length],
+				)
+			} else {
+				setFocusedField(fields[(currentIndex + 1) % fields.length])
+			}
+			return
+		}
+
 		if (key.return) {
 			if (mode === 'add') {
 				handleAddSubmit()
@@ -70,6 +86,7 @@ export default function QuickCommands() {
 			setFormName('')
 			setFormCommand('')
 			setFormDescription('')
+			setFocusedField('name')
 			setMode('add')
 		} else {
 			const cmd = commands.find(c => c.id === item.value)
@@ -86,6 +103,7 @@ export default function QuickCommands() {
 			setFormName(selectedCommand.name)
 			setFormCommand(selectedCommand.command)
 			setFormDescription(selectedCommand.description || '')
+			setFocusedField('name')
 			setMode('edit')
 		} else if (item.value === '__delete__') {
 			setMode('confirm-delete')
@@ -212,7 +230,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Name: </Text>
+						<Text color={focusedField === 'name' ? 'cyan' : undefined}>
+							{focusedField === 'name' ? '▸ ' : ''}Name:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formName}
@@ -226,7 +246,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Command: </Text>
+						<Text color={focusedField === 'command' ? 'cyan' : undefined}>
+							{focusedField === 'command' ? '▸ ' : ''}Command:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formCommand}
@@ -240,7 +262,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Description: </Text>
+						<Text color={focusedField === 'description' ? 'cyan' : undefined}>
+							{focusedField === 'description' ? '▸ ' : ''}Description:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formDescription}
@@ -250,7 +274,7 @@ export default function QuickCommands() {
 				</Box>
 
 				<Newline />
-				<Text dimColor>ENTER: Save • ESC: Cancel</Text>
+				<Text dimColor>↑↓ Select Field • ENTER: Save • ESC: Cancel</Text>
 			</Box>
 		)
 	}
@@ -324,7 +348,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Name: </Text>
+						<Text color={focusedField === 'name' ? 'cyan' : undefined}>
+							{focusedField === 'name' ? '▸ ' : ''}Name:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formName}
@@ -337,7 +363,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Command: </Text>
+						<Text color={focusedField === 'command' ? 'cyan' : undefined}>
+							{focusedField === 'command' ? '▸ ' : ''}Command:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formCommand}
@@ -350,7 +378,9 @@ export default function QuickCommands() {
 					flexDirection="row"
 				>
 					<Box width={15}>
-						<Text>Description: </Text>
+						<Text color={focusedField === 'description' ? 'cyan' : undefined}>
+							{focusedField === 'description' ? '▸ ' : ''}Description:{' '}
+						</Text>
 					</Box>
 					<TextInput
 						value={formDescription}
@@ -359,7 +389,7 @@ export default function QuickCommands() {
 				</Box>
 
 				<Newline />
-				<Text dimColor>ENTER: Save • ESC: Cancel</Text>
+				<Text dimColor>↑↓ Select Field • ENTER: Save • ESC: Cancel</Text>
 			</Box>
 		)
 	}
