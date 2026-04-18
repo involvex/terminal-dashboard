@@ -3,7 +3,14 @@ import {Box, Text, useInput} from 'ink'
 import {useAppContext} from './app.js'
 
 export default function Dashboard() {
-	const {plugins, setScreen, fontSize} = useAppContext()
+	const {plugins, setScreen, fontSize, themeColors: tc} = useAppContext()
+	const themeColors = tc ?? {
+		primary: 'cyan',
+		secondary: 'magenta',
+		accent: 'green',
+		dim: 'gray',
+		border: 'cyan',
+	}
 	const [dimensions, setDimensions] = useState({columns: 120, rows: 30})
 	const [activePanel, setActivePanel] = useState(0)
 	const [currentTime, setCurrentTime] = useState(new Date())
@@ -197,32 +204,32 @@ export default function Dashboard() {
 		>
 			{/* Header Bar */}
 			<Box
-				paddingX={2}
-				paddingY={1}
+				paddingX={1}
+				paddingY={0}
 				justifyContent="space-between"
 				borderStyle="single"
 				borderBottom={true}
 				borderTop={false}
 				borderLeft={false}
 				borderRight={false}
-				borderColor="cyan"
+				borderColor={themeColors.border}
 			>
 				<Text
 					bold
-					color="cyan"
+					color={themeColors.primary}
 				>
 					INVOLVEX TERMINAL DASHBOARD
 				</Text>
 				<Text>
 					<Text
-						color="yellow"
+						color={themeColors.secondary}
 						bold
 					>
 						{currentTime.toLocaleDateString()}
 					</Text>
 					<Text dimColor> | </Text>
 					<Text
-						color="green"
+						color={themeColors.accent}
 						bold
 					>
 						{currentTime.toLocaleTimeString()}
@@ -239,26 +246,27 @@ export default function Dashboard() {
 
 			{/* Footer Bar */}
 			<Box
-				paddingX={2}
-				paddingY={1}
+				paddingX={1}
+				paddingY={0}
 				justifyContent="space-between"
 				borderStyle="single"
 				borderTop={true}
 				borderBottom={false}
 				borderLeft={false}
 				borderRight={false}
-				borderColor="cyan"
+				borderColor={themeColors.border}
 			>
 				<Box flexDirection="column">
-					<Text dimColor>
-						← → ↑ ↓ Navigate • Tab Cycle • M Menu • Ctrl+G Git • Ctrl+P Tasks •
-						Ctrl+C Commands • Q Quit
-					</Text>
-					{activePanelHints && <Text color="yellow">{activePanelHints}</Text>}
+					<Text dimColor>← → Navigate • Tab • M Menu • Q Quit</Text>
+					{activePanelHints && (
+						<Text color={themeColors.secondary}>{activePanelHints}</Text>
+					)}
 				</Box>
 				<Text>
 					Active:{' '}
-					<Text color="cyan">{enabledPanels[activePanel]?.name || 'None'}</Text>
+					<Text color={themeColors.primary}>
+						{enabledPanels[activePanel]?.name || 'None'}
+					</Text>
 				</Text>
 			</Box>
 		</Box>

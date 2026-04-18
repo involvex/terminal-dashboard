@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {useFontScale} from '../hooks/useFontScale.js'
 import Panel from '../components/panel.js'
 import {Box, Text, useInput} from 'ink'
 import fetch from 'node-fetch'
@@ -126,7 +125,6 @@ const FALLBACK_PACKAGES: NpmPackage[] = [
 
 interface Props {
 	isActive: boolean
-	dimensions?: {columns: number; rows: number}
 }
 
 function parseNpmDate(dateStr: string): Date {
@@ -184,10 +182,7 @@ function categorizePackage(name: string, description: string): Category {
 	return 'cli'
 }
 
-export default function NpmReleasesPanel({isActive, dimensions}: Props) {
-	const {columns = 120, rows = 30} = dimensions || {}
-	const fontScale = useFontScale(columns, rows)
-
+export default function NpmReleasesPanel({isActive}: Props) {
 	const [allPackages, setAllPackages] =
 		useState<NpmPackage[]>(FALLBACK_PACKAGES)
 	const [loading, setLoading] = useState(true)
@@ -365,7 +360,7 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 		>
 			<Box
 				flexDirection="column"
-				gap={fontScale.gap}
+				gap={0}
 			>
 				{filteredPackages.length === 0 && !loading && (
 					<Box

@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {useFontScale} from '../hooks/useFontScale.js'
 import Panel from '../components/panel.js'
 import {Box, Text, useInput} from 'ink'
 import fetch from 'node-fetch'
@@ -50,13 +49,9 @@ const LANGUAGE_LABELS: Record<Language, string> = {
 
 interface Props {
 	isActive: boolean
-	dimensions?: {columns: number; rows: number}
 }
 
-export default function GithubTrendingPanel({isActive, dimensions}: Props) {
-	const {columns = 120, rows = 30} = dimensions || {}
-	const fontScale = useFontScale(columns, rows)
-
+export default function GithubTrendingPanel({isActive}: Props) {
 	const [repos, setRepos] = useState<Repo[]>([])
 	const [loading, setLoading] = useState(true)
 	const [language, setLanguage] = useState<Language>('all')
@@ -194,7 +189,7 @@ export default function GithubTrendingPanel({isActive, dimensions}: Props) {
 		>
 			<Box
 				flexDirection="column"
-				gap={fontScale.gap}
+				gap={0}
 			>
 				{isActive && <Text dimColor> L=Language T=Time</Text>}
 				{repos.map((repo, i) => (

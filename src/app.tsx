@@ -1,11 +1,18 @@
+import {
+	loadSettings,
+	type FontSize,
+	type AppTheme,
+	THEME_PRESETS,
+	type ThemeColors,
+} from './config/store.js'
 import SelectInput, {type SelectItem} from './components/select-input.js'
 import {useState, createContext, useContext, useEffect} from 'react'
-import {loadSettings, type FontSize} from './config/store.js'
 import pkg from '../package.json' with {type: 'json'}
 import {Text, Box, useInput} from 'ink'
 
 import GithubTrendingPanel from './panels/github-trending-panel.js'
 import QuickCommands from './commands/quick-commands.js'
+import NetworkPanel from './panels/network-panel.js'
 import NpmReleasesPanel from './panels/npm-panel.js'
 import SystemPanel from './panels/system-panel.js'
 import Settings from './commands/settings.js'
@@ -47,6 +54,8 @@ interface AppContextType {
 	currentScreen: AppScreen
 	setScreen: (screen: AppScreen) => void
 	fontSize: FontSize
+	theme: AppTheme
+	themeColors: ThemeColors
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -85,12 +94,19 @@ function BackableScreen({children, onBack}: BackableScreenProps) {
 export default function App() {
 	const [screen, setScreen] = useState<AppScreen>('dashboard')
 	const [fontSize, setFontSize] = useState<FontSize>(14)
+	const [theme, setTheme] = useState<AppTheme>('default')
 	const [plugins, setPlugins] = useState<Plugin[]>([
 		{
 			id: 'system',
 			name: 'System Monitor',
 			component: SystemPanel,
 			enabled: true,
+		},
+		{
+			id: 'network',
+			name: 'Network Monitor',
+			component: NetworkPanel,
+			enabled: false,
 		},
 		{
 			id: 'github',
@@ -108,9 +124,12 @@ export default function App() {
 		},
 	])
 
+	const themeColors = THEME_PRESETS[theme] ?? THEME_PRESETS.default
+
 	useEffect(() => {
 		loadSettings().then(settings => {
 			setFontSize(settings.fontSize)
+			setTheme(settings.theme)
 		})
 	}, [])
 
@@ -161,13 +180,13 @@ export default function App() {
 			<Box
 				flexDirection="column"
 				borderStyle="round"
-				borderColor="cyan"
+				borderColor={themeColors.border}
 				padding={1}
 			>
 				<Box marginBottom={1}>
 					<Text
 						bold
-						color="cyan"
+						color={themeColors.primary}
 					>
 						╔══════════════════════════════════╗
 					</Text>
@@ -191,7 +210,7 @@ export default function App() {
 				<Box marginBottom={1}>
 					<Text
 						bold
-						color="cyan"
+						color={themeColors.primary}
 					>
 						╠══════════════════════════════════╣
 					</Text>
@@ -199,7 +218,7 @@ export default function App() {
 				<Box marginX={2}>
 					<Text
 						bold
-						color="magenta"
+						color={themeColors.secondary}
 					>
 						{' '}
 						Select an option:
@@ -214,7 +233,7 @@ export default function App() {
 				<Box marginTop={1}>
 					<Text
 						bold
-						color="cyan"
+						color={themeColors.primary}
 					>
 						╚══════════════════════════════════╝
 					</Text>
@@ -279,6 +298,8 @@ export default function App() {
 						currentScreen: screen,
 						setScreen,
 						fontSize,
+						theme,
+						themeColors: THEME_PRESETS[theme],
 					}}
 				>
 					<QuickCommands />
@@ -296,6 +317,8 @@ export default function App() {
 					currentScreen: screen,
 					setScreen,
 					fontSize,
+					theme,
+					themeColors: THEME_PRESETS[theme],
 				}}
 			>
 				<Dashboard />
@@ -313,6 +336,8 @@ export default function App() {
 						currentScreen: screen,
 						setScreen,
 						fontSize,
+						theme,
+						themeColors: THEME_PRESETS[theme],
 					}}
 				>
 					<Settings />

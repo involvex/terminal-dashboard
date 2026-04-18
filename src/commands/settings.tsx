@@ -1,17 +1,31 @@
-import {loadSettings, saveSettings, type FontSize} from '../config/store.js'
+import {
+	loadSettings,
+	saveSettings,
+	type FontSize,
+	type AppTheme,
+	THEME_PRESETS,
+	type ThemeColors,
+} from '../config/store.js'
 import {useState, useEffect} from 'react'
 import {useAppContext} from '../app.js'
 import {Text, Box, useInput} from 'ink'
 import type {Key} from 'ink'
 
-type Theme = 'cyan' | 'magenta' | 'green' | 'yellow' | 'blue'
+const DEFAULT_COLORS: ThemeColors = {
+	primary: 'cyan',
+	secondary: 'magenta',
+	accent: 'green',
+	dim: 'gray',
+	border: 'cyan',
+}
 
-const themes: {label: string; value: Theme}[] = [
-	{label: 'Cyan', value: 'cyan'},
-	{label: 'Magenta', value: 'magenta'},
-	{label: 'Green', value: 'green'},
-	{label: 'Yellow', value: 'yellow'},
-	{label: 'Blue', value: 'blue'},
+const themes: {label: string; value: AppTheme; colors: string}[] = [
+	{label: 'Default', value: 'default', colors: 'cyan/magenta'},
+	{label: 'Hacker', value: 'hacker', colors: 'green/lime'},
+	{label: 'Ocean', value: 'ocean', colors: 'blue/cyan'},
+	{label: 'Sunset', value: 'sunset', colors: 'red/yellow'},
+	{label: 'Forest', value: 'forest', colors: 'green/yellow'},
+	{label: 'Midnight', value: 'midnight', colors: 'magenta/blue'},
 ]
 
 const fontSizes: {label: string; value: FontSize}[] = [
@@ -25,22 +39,32 @@ type FocusArea = 'theme' | 'fontSize' | 'panels'
 
 export default function Settings() {
 	const {plugins, togglePlugin} = useAppContext()
-	const [theme, setTheme] = useState<Theme>('cyan')
+	const [theme, setTheme] = useState<AppTheme>('default')
 	const [fontSize, setFontSize] = useState<FontSize>(14)
-	const [animations, _setAnimations] = useState(true)
 	const [focusArea, setFocusArea] = useState<FocusArea>('theme')
 	const [selectedIndex, setSelectedIndex] = useState(0)
 
 	useEffect(() => {
 		loadSettings().then(settings => {
+			setTheme(settings.theme)
 			setFontSize(settings.fontSize)
 		})
 	}, [])
 
+	async function handleThemeChange(newTheme: AppTheme) {
+		setTheme(newTheme)
+		const settings = await loadSettings()
+		await saveSettings({
+			...settings,
+			theme: newTheme,
+			fontSize: settings.fontSize,
+		})
+	}
+
 	async function handleFontSizeChange(size: FontSize) {
 		setFontSize(size)
 		const settings = await loadSettings()
-		await saveSettings({...settings, fontSize: size})
+		await saveSettings({...settings, fontSize: size, theme: settings.theme})
 	}
 
 	useInput((input: string, key: Key) => {
@@ -68,7 +92,7 @@ export default function Settings() {
 				setSelectedIndex(prev => (prev < themes.length - 1 ? prev + 1 : 0))
 			}
 			if (key.return || input === ' ') {
-				setTheme(themes[selectedIndex].value)
+				handleThemeChange(themes[selectedIndex].value)
 			}
 		} else if (focusArea === 'fontSize') {
 			if (key.upArrow) {
@@ -93,6 +117,8 @@ export default function Settings() {
 		}
 	})
 
+	const activeColors = THEME_PRESETS[theme] ?? DEFAULT_COLORS
+
 	return (
 		<Box
 			flexDirection="column"
@@ -101,7 +127,7 @@ export default function Settings() {
 			<Box marginBottom={1}>
 				<Text
 					bold
-					color="cyan"
+					color={activeColors.primary}
 				>
 					─── Settings ───
 				</Text>
@@ -113,7 +139,7 @@ export default function Settings() {
 				{/* Theme Section */}
 				<Box
 					borderStyle={focusArea === 'theme' ? 'single' : undefined}
-					borderColor={focusArea === 'theme' ? 'cyan' : undefined}
+					borderColor={focusArea === 'theme' ? activeColors.primary : undefined}
 					paddingX={1}
 					marginBottom={1}
 				>
@@ -124,7 +150,7 @@ export default function Settings() {
 						<Box marginBottom={1}>
 							<Text
 								bold
-								color={focusArea === 'theme' ? 'cyan' : 'white'}
+								color={focusArea === 'theme' ? activeColors.primary : 'white'}
 							>
 								{focusArea === 'theme' ? '▸ ' : '  '}Theme
 							</Text>
@@ -138,9 +164,9 @@ export default function Settings() {
 									<Text
 										color={
 											focusArea === 'theme' && index === selectedIndex
-												? 'cyan'
+												? activeColors.primary
 												: theme === t.value
-													? 'green'
+													? activeColors.accent
 													: undefined
 										}
 										bold={focusArea === 'theme' && index === selectedIndex}
@@ -150,6 +176,7 @@ export default function Settings() {
 											: '  '}
 										{theme === t.value ? '● ' : '○ '}
 										{t.label}
+										<Text dimColor> ({t.colors})</Text>
 									</Text>
 								</Box>
 							))}
@@ -165,7 +192,9 @@ export default function Settings() {
 				{/* Font Size Section */}
 				<Box
 					borderStyle={focusArea === 'fontSize' ? 'single' : undefined}
-					borderColor={focusArea === 'fontSize' ? 'cyan' : undefined}
+					borderColor={
+						focusArea === 'fontSize' ? activeColors.primary : undefined
+					}
 					paddingX={1}
 					marginBottom={1}
 				>
@@ -176,7 +205,9 @@ export default function Settings() {
 						<Box marginBottom={1}>
 							<Text
 								bold
-								color={focusArea === 'fontSize' ? 'cyan' : 'white'}
+								color={
+									focusArea === 'fontSize' ? activeColors.primary : 'white'
+								}
 							>
 								{focusArea === 'fontSize' ? '▸ ' : '  '}Font Size
 							</Text>
@@ -190,9 +221,9 @@ export default function Settings() {
 									<Text
 										color={
 											focusArea === 'fontSize' && index === selectedIndex
-												? 'cyan'
+												? activeColors.primary
 												: fontSize === fs.value
-													? 'green'
+													? activeColors.accent
 													: undefined
 										}
 										bold={focusArea === 'fontSize' && index === selectedIndex}
@@ -214,23 +245,12 @@ export default function Settings() {
 					</Box>
 				</Box>
 
-				{/* Animations Section */}
-				<Box
-					marginBottom={1}
-					paddingX={1}
-				>
-					<Text color="white">
-						Animations:{' '}
-						<Text color={animations ? 'green' : 'red'}>
-							{animations ? '✓ Enabled' : '✗ Disabled'}
-						</Text>
-					</Text>
-				</Box>
-
 				{/* Panels Section */}
 				<Box
 					borderStyle={focusArea === 'panels' ? 'single' : undefined}
-					borderColor={focusArea === 'panels' ? 'cyan' : undefined}
+					borderColor={
+						focusArea === 'panels' ? activeColors.primary : undefined
+					}
 					paddingX={1}
 					marginBottom={1}
 				>
@@ -241,7 +261,7 @@ export default function Settings() {
 						<Box marginBottom={1}>
 							<Text
 								bold
-								color={focusArea === 'panels' ? 'cyan' : 'white'}
+								color={focusArea === 'panels' ? activeColors.primary : 'white'}
 							>
 								{focusArea === 'panels' ? '▸ ' : '  '}
 								Enabled Panels
@@ -259,7 +279,7 @@ export default function Settings() {
 									<Text
 										color={
 											focusArea === 'panels' && index === selectedIndex
-												? 'cyan'
+												? activeColors.primary
 												: 'white'
 										}
 										bold={focusArea === 'panels' && index === selectedIndex}
@@ -267,7 +287,7 @@ export default function Settings() {
 										{focusArea === 'panels' && index === selectedIndex
 											? '❯ '
 											: '  '}
-										<Text color={plugin.enabled ? 'green' : 'red'}>
+										<Text color={plugin.enabled ? activeColors.accent : 'red'}>
 											{plugin.enabled ? '✓' : '✗'}
 										</Text>{' '}
 										{plugin.name}
@@ -291,9 +311,10 @@ export default function Settings() {
 				marginTop={1}
 				borderStyle="single"
 				padding={1}
+				borderColor={activeColors.border}
 			>
 				<Text dimColor>
-					Current: {theme} theme, {fontSize}px font,{' '}
+					Current: {theme} theme, {fontSize}px,{' '}
 					{plugins.filter(p => p.enabled).length}/{plugins.length} panels
 				</Text>
 			</Box>

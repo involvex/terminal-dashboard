@@ -27,7 +27,8 @@ export default function Panel({
 			borderColor={isActive ? 'cyan' : 'gray'}
 			width={width}
 			height={height}
-			margin={1}
+			marginY={0}
+			marginX={1}
 		>
 			<Box
 				paddingX={1}
@@ -47,8 +48,8 @@ export default function Panel({
 			</Box>
 
 			<Box
-				padding={1}
 				flexDirection="column"
+				flexGrow={1}
 			>
 				{children}
 			</Box>

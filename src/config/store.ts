@@ -8,10 +8,73 @@ const COMMANDS_FILE = path.join(CONFIG_DIR, 'commands.json')
 const SETTINGS_FILE = path.join(CONFIG_DIR, 'settings.json')
 
 export type FontSize = 12 | 14 | 16 | 18
+export type AppTheme =
+	| 'default'
+	| 'hacker'
+	| 'ocean'
+	| 'sunset'
+	| 'forest'
+	| 'midnight'
+
+export interface ThemeColors {
+	primary: string
+	secondary: string
+	accent: string
+	dim: string
+	border: string
+	background?: string
+}
+
+export const THEME_PRESETS: Record<AppTheme, ThemeColors> = {
+	default: {
+		primary: 'cyan',
+		secondary: 'magenta',
+		accent: 'green',
+		dim: 'gray',
+		border: 'cyan',
+	},
+	hacker: {
+		primary: 'green',
+		secondary: 'lime',
+		accent: 'green',
+		dim: 'gray',
+		border: 'green',
+		background: 'black',
+	},
+	ocean: {
+		primary: 'blue',
+		secondary: 'cyan',
+		accent: 'magenta',
+		dim: 'gray',
+		border: 'blue',
+	},
+	sunset: {
+		primary: 'red',
+		secondary: 'yellow',
+		accent: 'magenta',
+		dim: 'gray',
+		border: 'red',
+	},
+	forest: {
+		primary: 'green',
+		secondary: 'yellow',
+		accent: 'cyan',
+		dim: 'gray',
+		border: 'green',
+	},
+	midnight: {
+		primary: 'magenta',
+		secondary: 'blue',
+		accent: 'cyan',
+		dim: 'gray',
+		border: 'magenta',
+	},
+}
 
 export interface AppSettings {
 	version: number
 	fontSize: FontSize
+	theme: AppTheme
 }
 
 const DEFAULT_CONFIG: CommandsConfig = {
@@ -39,6 +102,7 @@ const DEFAULT_CONFIG: CommandsConfig = {
 const DEFAULT_SETTINGS: AppSettings = {
 	version: 1,
 	fontSize: 14,
+	theme: 'default',
 }
 
 async function ensureConfigDir(): Promise<void> {
