@@ -198,8 +198,9 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 		try {
 			setLoading(true)
 
+			// Use NPM registry - get recently updated packages
 			const response = await fetch(
-				'https://registry.npmjs.org/-/v1/search?text=*&size=50&popularity=1.0',
+				'https://registry.npmjs.org/-/v1/search?text=&size=50&from=0&quality=0.65&popularity=0.8&maintenance=0.5',
 			)
 
 			if (!response.ok) {

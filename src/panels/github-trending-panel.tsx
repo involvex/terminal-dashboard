@@ -14,6 +14,18 @@ interface Repo {
 	url: string
 }
 
+interface GithubSearchResponse {
+	items: Array<{
+		owner: {login: string}
+		name: string
+		description: string
+		stargazers_count: number
+		forks_count: number
+		language: string
+		html_url: string
+	}>
+}
+
 type Language = 'all' | 'typescript' | 'javascript' | 'python' | 'go' | 'rust'
 type Since = 'daily' | 'weekly' | 'monthly'
 
@@ -53,15 +65,44 @@ export default function GithubTrendingPanel({isActive, dimensions}: Props) {
 	const fetchTrending = useCallback(async () => {
 		try {
 			setLoading(true)
-			let url = 'https://gh-trending-api.herokuapp.com/repositories'
-			if (language !== 'all') {
-				url = `https://gh-trending-api.herokuapp.com/repositories/${language}`
-			}
-			url += `?since=${since}`
+			// Use official GitHub search API with daily trending query
+			const date = new Date()
+			date.setDate(date.getDate() - 1)
+			const dateStr = date.toISOString().split('T')[0]
 
-			const response = await fetch(url)
-			const data = (await response.json()) as Repo[]
-			setRepos(data.slice(0, 6))
+			const langParam = language !== 'all' ? `+language:${language}` : ''
+			const query = `created:>${dateStr}${langParam}`
+			const encodedQuery = encodeURIComponent(query)
+
+			const response = await fetch(
+				`https://api.github.com/search/repositories?q=${encodedQuery}&sort=stars&order=desc&per_page=10`,
+				{
+					headers: {
+						Accept: 'application/vnd.github.v3+json',
+						'User-Agent': 'term-dash',
+					},
+				},
+			)
+
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`)
+			}
+
+			const data = (await response.json()) as GithubSearchResponse
+			const items = data.items || []
+
+			// Format for our interface
+			const formattedRepos = items.slice(0, 6).map(item => ({
+				author: item.owner?.login || 'unknown',
+				name: item.name || '',
+				description: item.description || '',
+				stars: item.stargazers_count || 0,
+				forks: item.forks_count || 0,
+				language: item.language || '',
+				url: item.html_url || '',
+			}))
+
+			setRepos(formattedRepos)
 		} catch (e) {
 			console.error('Error fetching trending repos:', e)
 			setRepos([
