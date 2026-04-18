@@ -198,10 +198,17 @@ export default function NpmReleasesPanel({isActive, dimensions}: Props) {
 		try {
 			setLoading(true)
 
-			// Use NPM registry - get recently updated packages
-			const response = await fetch(
-				'https://registry.npmjs.org/-/v1/search?text=&size=50&from=0&quality=0.65&popularity=0.8&maintenance=0.5',
+			// Try primary endpoint - get popular packages
+			let response = await fetch(
+				'https://registry.npmjs.org/-/v1/search?text=&size=50&popularity=1',
 			)
+
+			// If primary fails, try alternative query
+			if (!response.ok) {
+				response = await fetch(
+					'https://registry.npmjs.org/-/v1/search?text=keywords:node&size=50',
+				)
+			}
 
 			if (!response.ok) {
 				throw new Error(`HTTP ${response.status}`)
