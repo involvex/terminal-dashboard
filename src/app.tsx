@@ -4,6 +4,7 @@ import pkg from '../package.json' with {type: 'json'}
 import {Text, Box, useInput} from 'ink'
 
 import GithubTrendingPanel from './panels/github-trending-panel.js'
+import QuickCommands from './commands/quick-commands.js'
 import NpmReleasesPanel from './panels/npm-panel.js'
 import SystemPanel from './panels/system-panel.js'
 import Settings from './commands/settings.js'
@@ -25,6 +26,7 @@ type AppScreen =
 	| 'exit'
 	| 'git'
 	| 'tasks'
+	| 'quick-commands'
 
 interface Plugin {
 	id: string
@@ -127,10 +129,14 @@ export default function App() {
 		if ((input === 'p' || input === 'P') && key.ctrl) {
 			setScreen('tasks')
 		}
+		if ((input === 'c' || input === 'C') && key.ctrl) {
+			setScreen('quick-commands')
+		}
 	})
 
 	const menuItems: SelectItem<AppScreen>[] = [
 		{label: '🚀 Dashboard', value: 'dashboard'},
+		{label: '⚡ Quick Commands', value: 'quick-commands'},
 		{label: '→ Git', value: 'git'},
 		{label: '→ Tasks', value: 'tasks'},
 		{label: '→ Help', value: 'help'},
@@ -249,6 +255,18 @@ export default function App() {
 		return (
 			<BackableScreen onBack={goMenu}>
 				<Tasks />
+			</BackableScreen>
+		)
+	}
+
+	if (screen === 'quick-commands') {
+		return (
+			<BackableScreen onBack={goMenu}>
+				<AppContext.Provider
+					value={{plugins, togglePlugin, currentScreen: screen, setScreen}}
+				>
+					<QuickCommands />
+				</AppContext.Provider>
 			</BackableScreen>
 		)
 	}
