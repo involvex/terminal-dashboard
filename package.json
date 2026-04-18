@@ -38,7 +38,7 @@
 	},
 	"prettier": "@involvex/prettier-config",
 	"dependencies": {
-		"ink": "latest",
+		"ink": "7.0.1",
 		"ink-divider": "^4.1.1",
 		"ink-select-input": "latest",
 		"ink-spinner": "^5.0.0",
@@ -63,18 +63,18 @@
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",
 		"chalk": "latest",
-		"eslint": "latest",
+		"eslint": "10.2.1",
 		"eslint-plugin-react": "latest",
-		"eslint-plugin-react-hooks": "latest",
+		"eslint-plugin-react-hooks": "7.1.1",
 		"globals": "latest",
 		"ink-testing-library": "^3.0.0",
 		"jiti": "latest",
-		"prettier": "latest",
+		"prettier": "3.8.3",
 		"prettier-plugin-organize-imports": "^4.3.0",
 		"prettier-plugin-packagejson": "^3.0.0",
 		"prettier-plugin-sort-imports": "^1.8.10",
 		"ts-node": "latest",
-		"typescript": "latest"
+		"typescript": "6.0.3"
 	},
 	"engines": {
 		"node": ">=16"
